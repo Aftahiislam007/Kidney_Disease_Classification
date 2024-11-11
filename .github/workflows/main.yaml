@@ -37,26 +37,30 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y jq unzip
-      
-      - name: Set up AWS CLI
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Log in to Amazon ECR
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+          IMAGE_TAG: latest
         run: |
-          aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin 307946679963.dkr.ecr.eu-north-1.amazonaws.com
-
-      - name: Build Docker image
-      run: |
-        docker build -t kidney .
-        docker tag kidney:latest 307946679963.dkr.ecr.eu-north-1.amazonaws.com/kidney:latest
-
-      - name: Push Docker image to ECR
-        run: |
-          docker push 307946679963.dkr.ecr.eu-north-1.amazonaws.com/kidney:latest
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           
           
   Continuous-Deployment:
@@ -66,25 +70,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Set up AWS CLI
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Log in to Amazon ECR
-        run: |
-          aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin 307946679963.dkr.ecr.eu-north-1.amazonaws.com
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
       
       
-      - name: Deploy to EC2
-        env:
-          IMAGE_URI: 307946679963.dkr.ecr.eu-north-1.amazonaws.com/kidney:latest
+      - name: Pull latest images
         run: |
-          # Connect to EC2 and pull the Docker image
-          ssh -o StrictHostKeyChecking=no -i "${{ secrets.EC2_KEY_PAIR_PATH }}" ubuntu@${{ secrets.EC2_PUBLIC_IP }} << 'EOF'
-            sudo docker pull $IMAGE_URI
-            sudo docker stop $(sudo docker ps -a -q) || true
-            sudo docker run -d -p 80:80 $IMAGE_URI
-          EOF
+         docker pull ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+         
+      # - name: Stop and remove container if running
+      #   run: |
+      #    docker ps -q --filter "name=cnncls" | grep -q . && docker stop cnncls && docker rm -fv cnncls
+       
+      - name: Run Docker Image to serve users
+        run: |
+         docker run -d -p 8080:8080 --name=cnncls -e 'AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}' -e 'AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}' -e 'AWS_REGION=${{ secrets.AWS_REGION }}'  ${{secrets.AWS_ECR_LOGIN_URI}}/${{ secrets.ECR_REPOSITORY_NAME }}:latest
+      - name: Clean previous images and containers
+        run: |
+         docker system prune -f
