@@ -1,5 +1,63 @@
 <h1 align="center">Kidney Disease Classification using MLflow and DVC</h1>
 
+## Project Overview
+
+- The project focuses on building a Machine Learning (ML) model to classify whether a patient has chronic kidney disease (CKD) or not.
+- Utilizes MLflow for experiment tracking and **DVC (Data Version Control)** for data management.
+- Implements **CI/CD pipeline** using **GitHub Actions** to automate model training, testing, and deployment to **AWS**.
+- This project is developed using the Python's Flask framework.
+
+## Objectives
+
+- Build and evaluate a classification model for kidney disease detection.
+- Use **MLflow** to log experiment details like hyperparameters, model metrics, and artifacts.
+- Leverage **DVC** to manage and version control data and model files.
+- Automate deployment on **AWS** using **GitHub Actions** to ensure continuous integration and continuous delivery.
+
+## Dataset Preparation
+
+- Collecting kidney disease dataset from **Kaggle**.
+- Clean and preprocess data (e.g., handle missing values, normalize or scale features, etc.).
+- Store and version control the dataset using **DVC**.
+
+## Environment Setup
+
+- Create a virtual environment (used Python's `virtualenv`) for project dependencies.
+- Install necessary packages (e.g., pandas, scikit-learn, Tensorflow, DVC, MLflow for AWS integration).
+- Set up **AWS** credentials for deployment.
+
+## Preparing Model, Experimentation and Model Training
+
+- Define the ML pipeline (data loading, preprocessing, model training, evaluation).
+- Using **CNN (Convolutional Neural Network)** classifiers and **Keras** library for processing image data.
+- Using **VGG16** *CNN model* for preparing and training model and also using **Softmax** *activation function* of a *Neural Network* to normalize the output of a network to a probability distribution over predicted output classes.
+- Here, I am using **CategoricalCrossentropy** loss function to measure the difference between predicted probabilities and true categorical labels in multi-class classification of this model.
+- Log and track experiments in MLflow:
+    - Capture metrics (e.g., accuracy, F1 score) and artifacts (e.g., models, plots).
+    - Record hyperparameters used in each run.
+- Using LEARNING_RATE, EPOCHS, CLASSES and BATCH_SIZE for preparing and training model data.
+- Use **DVC** to track and version the datasets and models.
+
+## Model Evaluation and Selection
+
+- Analyze the metrics logged in MLflow and select the best-performing model.
+- Store the final model using **DVC**.
+
+## CI/CD Pipeline using GitHub Actions
+
+- Configure a GitHub Actions workflow to automate:
+  - Testing code and verifying dependencies.
+  - Training and testing models on new commits or PRs.
+- Use GitHub Actions for **continuous integration** of code changes, triggering ML training, and deploying to AWS automatically if tests pass.
+
+## Deployment on AWS
+
+- Choosing AWS EC2 deployment method for model hosting .
+- Configure GitHub Actions to:
+  - Deploy the model automatically on AWS after successful tests.
+  - Update deployment if there are improvements in the model.
+- Ensure AWS configuration for permissions, environment variables, and secret management.
+
 ## Workflows
 
 1. Update config.yaml
