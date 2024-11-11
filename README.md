@@ -21,7 +21,7 @@ Clone the repository
 ```bash
 https://github.com/Aftahiislam007/Kidney_Disease_Classification
 ```
-### STEP 01- Create a virtual environment after opening the repository (Using `venv`)
+### STEP 01 - Create a virtual environment after opening the repository (Using `venv`)
 
 ```bash
 python -m venv ./venv
@@ -37,17 +37,37 @@ Note - Try `./activate` instead of `activate` if using powershell terminal
 activate
 ```
 
-### STEP 02- Install the requirements
+### STEP 02 - Install the requirements
 ```bash
 pip install -r requirements.txt
 ```
 
-### STEP 03- Run the main project file
+### STEP 03 - Run the main project file
 ```bash
 # Finally run the following command
 python main.py
 ```
+>OR
 
+### STEP 03 - Run the project (If want to run with `dvc` command)
+
+#### Step - 1
+
+```bash
+dvc init
+```
+
+#### Step - 2
+
+```bash
+dvc repro
+```
+
+#### Step - 3 (Optional - If want to see in `Directed Acyclic Graph (DAG)` mode)
+
+```bash
+dvc dag
+```
 
 
 
@@ -92,27 +112,6 @@ export MLFLOW_TRACKING_USERNAME=Aftahiislam007
 
 export MLFLOW_TRACKING_PASSWORD=52e4eb244e8eae6cd6c5a140e7413f13bf02852f
 
-```
-
-
-## DVC run command
-
-### Step - 1
-
-```bash
-dvc init
-```
-
-### Step - 2
-
-```bash
-dvc repro
-```
-
-### Step - 3
-
-```bash
-dvc dag
 ```
 
 
