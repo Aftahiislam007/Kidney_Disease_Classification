@@ -10,10 +10,7 @@ class PredictionPipeline:
     
     def predict(self):
         # load model
-<<<<<<< Updated upstream
-=======
         # model = load_model(os.path.join("artifacts","training", "model.h5"))
->>>>>>> Stashed changes
         model = load_model(os.path.join("model", "model.h5"))
         
         imagename = self.filename
